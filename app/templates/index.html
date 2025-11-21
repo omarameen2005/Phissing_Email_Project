@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Shield • Enterprise Threat Detection</title>
+    <meta name="description" content="Real-time AI-powered phishing detection platform">
+
+    <!-- FIX: Import datetime correctly -->
+     {% set now = datetime.now() %}
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Cyber Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #5bc0be;
+            --red: #e74c3c;
+            --yellow: #f39c12;
+            --green: #27ae60;
+            --bg: #0b132b;
+            --card: #1c2541;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: #e6e6e6; 
+            font-family: 'Roboto Mono', monospace; 
+            line-height: 1.6;
+        }
+        .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 32px; color: var(--primary); }
+        h3 { font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 1.5px; color: #5bc0be; margin-bottom: 15px; }
+        nav { 
+            background: rgba(11, 19, 43, 0.98); 
+            padding: 20px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+        .container { max-width: 1500px; margin: 0 auto; padding: 40px 20px; }
+        .kpi-box { display: flex; gap: 25px; flex-wrap: wrap; margin-bottom: 50px; justify-content: center; }
+        .kpi { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 16px; 
+            flex: 1; 
+            min-width: 220px; 
+            text-align: center; 
+            border: 1px solid #333; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .kpi-title { color: #888; font-size: 15px; margin-bottom: 12px; }
+        .kpi-value { font-size: 42px; font-weight: bold; }
+        .text-red { color: var(--red); text-shadow: 0 0 10px rgba(231,76,60,0.5); }
+        .text-yellow { color: var(--yellow); }
+        .text-green { color: var(--green); text-shadow: 0 0 10px rgba(39,174,96,0.5); }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 30px; margin-bottom: 50px; }
+        .card { background: var(--card); padding: 30px; border-radius: 18px; border: 1px solid #333; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        canvas { width: 100% !important; height: 300px !important; }
+        textarea#emailInput { 
+            width: 100%; height: 220px; background: #0d1117; color: #0f0; 
+            border: 2px solid #333; border-radius: 12px; padding: 18px; 
+            font-family: 'Courier New', monospace; font-size: 15px; resize: vertical;
+            margin-bottom: 20px;
+        }
+        button#checkBtn { 
+            padding: 18px 60px; background: var(--primary); color: #000; 
+            font-weight: bold; border: none; border-radius: 12px; font-size: 20px; 
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(91,192,190,0.4);
+        }
+        button#checkBtn:hover { background: #74d4d1; transform: translateY(-3px); }
+        .result { 
+            padding: 30px; border-radius: 16px; margin-top: 20px; 
+            text-align: center; font-size: 22px; min-height: 120px; font-weight: bold;
+        }
+        .result.phishing { background: #3a1f24; border: 3px solid var(--red); color: var(--red); }
+        .result.warning { background: #3d3000; border: 3px solid var(--yellow); color: var(--yellow); }
+        .result.safe { background: #1e3a2f; border: 3px solid var(--green); color: var(--green); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #444; }
+        th { background: #162033; color: var(--primary); }
+        tr.phishing { background: rgba(231, 76, 60, 0.15); }
+        tr.suspicious { background: rgba(243, 156, 18, 0.15); }
+        tr.safe { background: rgba(39, 174, 96, 0.08); }
+        .status-dot {
+            display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+            background: var(--green); animation: pulse 2s infinite; margin-right: 12px;
+            box-shadow: 0 0 15px rgba(39,174,96,0.8);
+        }
+        @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:0.4} }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <span class="status-dot"></span>
+            Phishing Shield
+        </div>
+        <div style="color: var(--primary); font-weight: 600; font-size: 15px;">
+            SYSTEM ONLINE • {{ now.strftime("%Y-%m-%d %H:%M:%S") }}
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- KPIs -->
+        <div class="kpi-box">
+            <div class="kpi"><div class="kpi-title">Total Processed</div><div class="kpi-value">{{ "{:,}".format(stats.total) }}</div></div>
+            <div class="kpi"><div class="kpi-title">Phishing Blocked</div><div class="kpi-value text-red">{{ "{:,}".format(stats.Phishing) }}</div></div>
+            <div class="kpi"><div class="kpi-title">Suspicious</div><div class="kpi-value text-yellow">{{ "{:,}".format(stats.Suspicious|default(0)) }}</div></div>
+            <div class="kpi"><div class="kpi-title">Safe Emails</div><div class="kpi-value text-green">{{ "{:,}".format(stats.Safe) }}</div></div>
+        </div>
+
+        <!-- Charts -->
+        <!-- <div class="cards">
+            <div class="card"><h3>Threat Trend (Last 12 Scans)</h3><canvas id="lineChart"></canvas></div>
+            <div class="card"><h3>Threat Distribution</h3><canvas id="pieChart"></canvas></div>
+        </div> -->
+
+        <!-- Scanner -->
+        <div class="card">
+            <h3>INSTANT EMAIL SCANNER</h3>
+            <p style="color:#888; margin-bottom:18px; font-size:15px;">Paste full email (headers + body) below</p>
+            <textarea id="emailInput" placeholder="From: security@paypal.com&#10;Subject: Urgent Action Required&#10;&#10;Click here to verify: https://paypal-secure.co/login..."></textarea>
+            <div style="text-align:center;"><button id="checkBtn">SCAN NOW</button></div>
+            <div id="resultBox" class="result hidden"></div>
+        </div>
+
+        <!-- Recent Logs -->
+        <div class="card" style="margin-top: 50px;">
+            <h3>Latest Detections</h3>
+            {% if logs %}
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr><th>Time</th><th>Verdict</th><th>Confidence</th><th>Reason</th></tr></thead>
+                    <tbody>
+                        {% for log in logs[:20] %}
+                        <tr class="{{ 'phishing' if log.label == 'Phishing' else 'suspicious' if log.label == 'Suspicious' else 'safe' }}">
+                            <td style="font-size:13px;">{{ log.timestamp }}</td>
+                            <td><strong>{{ log.label }}</strong></td>
+                            <td>{% if log.confidence %}<strong>{{ "%.1f"|format(log.confidence * 100) }}%</strong>{% else %}—{% endif %}</td>
+                            <td style="max-width:600px; word-break:break-all;">{{ log.reason }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align:center; padding:80px; color:#666;">No activity yet. Start scanning!</p>
+            {% endif %}
+
+            <div style="text-align:center; margin-top:30px; padding-top:20px; border-top:1px solid #444;">
+                <a href="/logs" style="color:var(--primary); margin:0 20px; font-weight:600;">Full Logs</a>
+                <span style="color:#555;">•</span>
+                
+                <a href="/scan" style="color:#f39c12; margin:0 20px; font-weight:600;">Dedicated Scanner</a>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin:100px 0 40px; color:#444; font-size:14px;">
+            Phishing Shield • Hybrid AI + Rule-Based Detection • © 2025
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='script.js') }}?v=5"></script>
+
+    <!-- Safe Data Injection -->
+    <script id="dashboard-data" type="application/json">{{ stats | tojson }}</script>
+    <script id="dashboard-logs" type="application/json">{{ logs | tojson }}</script>
+    <script>
+        window.dashboardStats = JSON.parse(document.getElementById('dashboard-data').textContent);
+        window.dashboardLogs  = JSON.parse(document.getElementById('dashboard-logs').textContent);
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Email Scanner • Phishing Shield</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; }
+        h3 { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+        body { font-family: 'Roboto Mono', monospace; }
+        .status-dot {
+            display: inline-block;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+            margin-right: 12px;
+        }
+        @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:0.5} }
+        .scanner-card {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            border: 2px solid #5bc0be;
+            box-shadow: 0 0 40px rgba(91, 192, 190, 0.3);
+            border-radius: 20px;
+            background: linear-gradient(135deg, #1c2541, #162033);
+        }
+        .scanner-title {
+            text-align: center;
+            font-size: 32px;
+            color: #5bc0be;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(91, 192, 190, 0.6);
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        #resultBox {
+            margin-top: 30px;
+            padding: 30px;
+            font-size: 22px;
+            min-height: 120px;
+            border-radius: 16px;
+            text-align: center;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+        }
+        .confidence-bar {
+            width: 100%;
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .confidence-fill {
+            height: 100%;
+            transition: all 0.8s ease;
+            border-radius: 6px;
+        }
+        .phishing-fill { background: linear-gradient(90deg, #e74c3c, #ff6b6b); }
+        .warning-fill { background: linear-gradient(90deg, #f39c12, #f1c40f); }
+        .safe-fill { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <span class="status-dot"></span>
+            Phishing Shield
+        </div>
+        <div style="color:#5bc0be; font-weight:600; font-size:15px;">
+            DEDICATED SCANNER • REAL-TIME AI ANALYSIS
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="scanner-card">
+            <h3 class="scanner-title">INSTANT EMAIL SCANNER</h3>
+            <p class="subtitle">
+                Paste any email below — full headers + body — and get an immediate threat verdict powered by hybrid AI.
+            </p>
+
+            <textarea 
+                id="emailInput" 
+                placeholder="From: support@paypal-security.com&#10;Subject: Urgent: Your account will be suspended&#10;Date: Tue, 21 Nov 2025&#10;&#10;Dear user,&#10;&#10;We detected unusual activity...&#10;Click here to verify: https://paypal-secure-login.co/verify&#10;&#10;Thank you,&#10;PayPal Team"
+                spellcheck="false"
+            ></textarea>
+
+            <div style="text-align:center; margin:30px 0;">
+                <button id="checkBtn" style="padding:18px 50px; font-size:20px; font-weight:bold;">
+                    SCAN EMAIL NOW
+                </button>
+            </div>
+
+            <div id="resultBox" class="result hidden">
+                <div id="verdictText"></div>
+                <div class="confidence-bar"><div id="confidenceFill" class="confidence-fill" style="width:0%"></div></div>
+                <div id="confidenceText" style="margin-top:10px; font-size:18px;"></div>
+                <div id="reasonText" style="margin-top:15px; font-size:16px; opacity:0.9;"></div>
+                <div id="quarantineNotice" style="margin-top:20px; font-size:18px; font-weight:bold;"></div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin:50px 0;">
+            <a href="/" style="color:#5bc0be; font-size:19px; font-weight:600;">
+                ← Back to Dashboard
+            </a>
+            <span style="color:#555; margin:0 25px;">•</span>
+            <a href="/logs" style="color:#f39c12; font-size:19px; font-weight:600;">
+                View Scan History →
+            </a>
+        </div>
+
+        <div style="text-align:center; color:#444; font-size:13px; margin-top:80px;">
+            Phishing Shield • Enterprise Hybrid Detection Engine • Zero False Positives Mode Active
+        </div>
+    </div>
+
+    <script>
+    document.getElementById("checkBtn").addEventListener("click", async () => {
+        const text = document.getElementById("emailInput").value.trim();
+        const resultBox = document.getElementById("resultBox");
+        const verdictText = document.getElementById("verdictText");
+        const confidenceFill = document.getElementById("confidenceFill");
+        const confidenceText = document.getElementById("confidenceText");
+        const reasonText = document.getElementById("reasonText");
+        const quarantineNotice = document.getElementById("quarantineNotice");
+
+        if (!text) {
+            verdictText.innerHTML = "Please paste an email first";
+            resultBox.className = "result warning";
+            resultBox.classList.remove("hidden");
+            return;
+        }
+
+        verdictText.innerHTML = "Analyzing email...<br><small>AI engine active...</small>";
+        resultBox.className = "result";
+        resultBox.classList.remove("hidden");
+        confidenceFill.style.width = "0%";
+
+        try {
+            const res = await fetch("/scan_api", {  // FIXED: Now uses correct API
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email_text: text })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error("Scan failed");
+
+            // Show result
+            verdictText.innerHTML = `<strong style="font-size:42px;">${data.label}</strong>`;
+
+            const confPercent = data.confidence ? (data.confidence * 100).toFixed(1) : 0;
+            confidenceText.innerHTML = `Confidence: <strong>${confPercent}%</strong>`;
+            confidenceFill.style.width = confPercent + "%";
+
+            reasonText.textContent = data.reason || "Analysis complete";
+
+            if (data.quarantined) {
+                quarantineNotice.innerHTML = "EMAIL QUARANTINED & BLOCKED";
+                quarantineNotice.style.color = "#e74c3c";
+            } else {
+                quarantineNotice.innerHTML = "";
+            }
+
+            // Apply correct styling
+            const type = data.label === "Phishing" ? "phishing" : 
+                        data.label === "Suspicious" ? "warning" : "safe";
+            resultBox.className = `result ${type}`;
+            confidenceFill.className = `confidence-fill ${type}-fill`;
+
+        } catch (err) {
+            console.error(err);
+            verdictText.innerHTML = "Scan Failed";
+            reasonText.textContent = "Network error or server issue. Try again.";
+            resultBox.className = "result warning";
+        }
+    });
+</script>
+</body>
+</html>

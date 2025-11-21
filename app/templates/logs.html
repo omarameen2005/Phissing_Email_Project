@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Scan History • Phishing Shield</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; }
+        h3 { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        body { font-family: 'Roboto Mono', monospace; }
+        .status-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+            margin-right: 10px;
+        }
+        @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:0.5} }
+        .table-container { overflow-x: auto; border-radius: 12px; }
+        table { min-width: 900px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <span class="status-dot"></span>
+            Phishing Shield
+        </div>
+        <div style="color:#5bc0be; font-size:14px;">
+            Full Audit Log • {{ logs|length }} entries
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="card" style="margin-top: 30px;">
+            <h3 style="margin:0 0 25px 0; font-size:26px; color:#5bc0be;">
+                Complete Scan History
+            </h3>
+
+            {% if logs %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:80px;">#ID</th>
+                            <th style="width:170px;">Timestamp</th>
+                            <th style="width:130px;">Verdict</th>
+                            <th style="width:110px;">Confidence</th>
+                            <th>Reason / Indicators</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr class="{{ 'phishing' if log.label == 'Phishing' else 'suspicious' if log.label == 'Suspicious' else 'safe' }}">
+                            <td style="font-family:monospace; color:#888;">{{ log.id }}</td>
+                            <td style="font-size:13px;">{{ log.timestamp }}</td>
+                            <td>
+                                <strong style="font-size:15px;">
+                                    {{ log.label }}
+                                </strong>
+                            </td>
+                            <td>
+                                {% if log.confidence %}
+                                    <strong style="color:#5bc0be;">
+                                        {{ "%.1f"|format(log.confidence * 100) }}%
+                                    </strong>
+                                {% else %}
+                                    <span style="color:#666;">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="max-width:600px; word-break:break-word; font-size:13.5px; line-height:1.5;">
+                                {{ log.reason }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:25px; padding:20px; background:#111727; border-radius:10px; text-align:center; color:#aaa;">
+                Showing all {{ logs|length }} recorded scans • 
+                <strong>{{ stats.Phishing }}</strong> phishing blocked • 
+                <strong>{{ stats.Suspicious|default(0) }}</strong> flagged suspicious
+            </div>
+
+            {% else %}
+            <div style="text-align:center; padding:80px 20px; color:#666;">
+                <h4 style="color:#5bc0be; margin-bottom:15px;">No scan history yet</h4>
+                <p>Your detection engine is armed and ready.<br>Start scanning emails from the dashboard to populate logs.</p>
+            </div>
+            {% endif %}
+
+            <div style="text-align:center; margin:40px 0;">
+                <a href="/" style="color:#5bc0be; font-size:18px; font-weight:600; text-decoration:none;">
+                    ← Back to Dashboard
+                </a>
+                <span style="color:#444; margin:0 20px;">•</span>
+                
+            </div>
+        </div>
+
+        <div style="text-align:center; margin:60px 0 30px; color:#444; font-size:13px;">
+            Phishing Shield • Enterprise-Grade Detection • Hybrid AI Engine Active
+        </div>
+    </div>
+</body>
+</html>
