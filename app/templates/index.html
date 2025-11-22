@@ -7,15 +7,13 @@
     <meta name="description" content="Real-time AI-powered phishing detection platform">
 
     <!-- FIX: Import datetime correctly -->
-     {% set now = datetime.now() %}
+    {% set now = datetime.now() %}
 
-    <!-- Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- Chart.js -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Cyber Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -127,7 +125,7 @@
             <div class="card"><h3>Threat Distribution</h3><canvas id="pieChart"></canvas></div>
         </div> -->
 
-        <!-- Scanner -->
+
         <div class="card">
             <h3>INSTANT EMAIL SCANNER</h3>
             <p style="color:#888; margin-bottom:18px; font-size:15px;">Paste full email (headers + body) below</p>
@@ -136,7 +134,7 @@
             <div id="resultBox" class="result hidden"></div>
         </div>
 
-        <!-- Recent Logs -->
+
         <div class="card" style="margin-top: 50px;">
             <h3>Latest Detections</h3>
             {% if logs %}
@@ -172,10 +170,10 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+
     <script src="{{ url_for('static', filename='script.js') }}?v=5"></script>
 
-    <!-- Safe Data Injection -->
+
     <script id="dashboard-data" type="application/json">{{ stats | tojson }}</script>
     <script id="dashboard-logs" type="application/json">{{ logs | tojson }}</script>
     <script>

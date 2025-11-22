@@ -1,21 +1,11 @@
-# app/routes.py
-# FINAL CLEAN VERSION — NO WARNINGS, NO QUARANTINE, PERFECT
-
 from flask import Blueprint, render_template, request, jsonify
 from datetime import datetime
-
-# Import your real processor (only once, at top)
 from engine.processor import process_email
 
 main = Blueprint("main", __name__)
-
-# In-memory logs (for demo — perfect for university project)
 logs = []
 
 
-# ===================================================================
-# HOME / DASHBOARD
-# ===================================================================
 @main.route("/", methods=["GET", "POST"])
 def index():
     global logs
@@ -50,9 +40,6 @@ def index():
     )
 
 
-# ===================================================================
-# DEDICATED SCAN PAGE
-# ===================================================================
 @main.route("/scan", methods=["GET", "POST"])
 def scan_page():
     global logs
@@ -76,9 +63,6 @@ def scan_page():
     return render_template("scan.html")
 
 
-# ===================================================================
-# AJAX SCAN API (used by dashboard & scan page)
-# ===================================================================
 @main.route("/scan_api", methods=["POST"])
 def scan_api():
     global logs
@@ -94,7 +78,7 @@ def scan_api():
         user_agent=request.headers.get("User-Agent", "unknown")
     )
 
-    # Save to logs
+    
     logs.append({
         "id": len(logs) + 1,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -110,9 +94,6 @@ def scan_api():
     })
 
 
-# ===================================================================
-# FULL LOGS PAGE
-# ===================================================================
 @main.route("/logs")
 def logs_page():
     stats = {

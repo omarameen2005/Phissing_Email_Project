@@ -82,14 +82,14 @@ tfidf = TfidfVectorizer(
 
 model = Pipeline([
     ("tfidf", tfidf),
-    ("clf", LogisticRegression(
-        C=10,
+    ("clf", RandomForestClassifier(
+        n_estimators=500,
+        max_depth=50,
         class_weight="balanced",
-        solver="liblinear", 
-        max_iter=100,
+        random_state=42,
+        n_jobs=-1,
     ))
 ])
-
 
 print("Running 5-fold cross-validation on train set (dt + dt2)...")
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
