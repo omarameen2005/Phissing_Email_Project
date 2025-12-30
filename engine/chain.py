@@ -119,13 +119,13 @@ class ModelHandler(BaseHandler):
             proba = model.predict_proba([email_text])[0]
             phish_prob = proba[1]
 
-            if phish_prob >= 0.78:
+            if phish_prob >= 0.7:
                 return {
                     "label": "Phishing",
                     "confidence": round(phish_prob, 4),
                     "reason": f"ML Model strongly indicates phishing ({phish_prob:.1%})"
                 }
-            elif phish_prob <= 0.22:
+            elif phish_prob <= 0.4:
                 return {
                     "label": "Safe",
                     "confidence": round(1 - phish_prob, 4),
