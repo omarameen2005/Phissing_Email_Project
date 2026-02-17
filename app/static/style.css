@@ -290,3 +290,32 @@ a:hover {
 ::-webkit-scrollbar-thumb:hover {
     background: #4aa3b5;
 }
+
+
+
+.expand-arrow {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+.expand-content {
+    background: var(--card);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    max-height: 400px;
+    overflow: auto;
+}
+.more-info-btn {
+    color: var(--yellow);
+    font-weight: 600;
+    margin-left: 15px;
+    text-decoration: none;
+}
+.more-info-btn:hover {
+    text-decoration: underline;
+}

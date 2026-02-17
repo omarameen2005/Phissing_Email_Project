@@ -2,8 +2,10 @@ from typing import Dict, Any, Optional
 import uuid
 import traceback
 from .chain import build_chain
-from .logger import log_scan
-
+from .logger import get_conn, log_scan
+from model.shap_explain import get_shap_data 
+import json
+from model.shap_explain import get_shap_data
 
 def process_email(
     email_text: str,
@@ -75,7 +77,7 @@ def process_email(
         "timestamp": None  
     }
 
-    log_scan(
+    log_id = log_scan( 
         email_text=email_text,
         label=label,
         confidence=confidence if confidence > 0 else None,
@@ -83,5 +85,19 @@ def process_email(
         ip_address=ip_address,
         user_agent=user_agent
     )
+
+    if "ML Model" in reason:
+        try:
+            shap_json = get_shap_data(email_text)
+            with get_conn() as conn:
+                conn.execute(
+                    "UPDATE email_logs SET shap_data = ? WHERE id = ?",
+                    (json.dumps(shap_json), log_id)
+                )
+                conn.commit()
+            print(f"SHAP data saved for log {log_id}!")  
+        except Exception as e:
+            print(f"SHAP generation failed for log {log_id}: {e}")
+
 
     return result
