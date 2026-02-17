@@ -7,7 +7,6 @@
     <title>Phishing Shield • Enterprise Threat Detection</title>
     <meta name="description" content="Real-time AI-powered phishing detection platform">
 
-    <!-- FIX: Import datetime correctly -->
     {% set now = datetime.now() %}
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -269,7 +268,6 @@
     </nav>
 
     <div class="container">
-        <!-- KPIs -->
         <div class="kpi-box">
             <div class="kpi">
                 <div class="kpi-title">Total Processed</div>
@@ -288,12 +286,6 @@
                 <div class="kpi-value text-green">{{ "{:,}".format(stats.Safe) }}</div>
             </div>
         </div>
-
-        <!-- Charts -->
-        <!-- <div class="cards">
-            <div class="card"><h3>Threat Trend (Last 12 Scans)</h3><canvas id="lineChart"></canvas></div>
-            <div class="card"><h3>Threat Distribution</h3><canvas id="pieChart"></canvas></div>
-        </div> -->
 
 
         <div class="card">
@@ -319,19 +311,6 @@
                             <th>Reason</th>
                         </tr>
                     </thead>
-                    <!-- <tbody>
-                        {% for log in logs[:20] %}
-                        <tr class="{{ 'phishing' if log.label == 'Phishing' else 'suspicious' if log.label == 'Suspicious' else 'safe' }}">
-                            <td style="font-size:13px;">{{ log.timestamp }}</td>
-                            <td><strong>{{ log.label }}</strong></td>
-                            <td>{% if log.confidence %}<strong>{{ "%.1f"|format(log.confidence * 100) }}%</strong>{% else %}—{% endif %}</td>
-                            <td style="max-width:600px; word-break:break-all;">{{ log.reason }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody> -->
-
-
-                    <!-- ... Rest of file unchanged ... -->
                     <tbody>
                         {% for log in logs %}
                         <tr
@@ -340,17 +319,7 @@
                             <td><strong>{{ log.label }}</strong></td>
                             <td>{% if log.confidence %}<strong>{{ "%.1f"|format(log.confidence * 100) }}%</strong>{%
                                 else %}—{% endif %}</td>
-                            <!-- <td style="max-width:600px; word-break:break-all;">
-                                {{ log.reason }} 
-                                {% if 'ML Model' in log.reason %} 
-                                <button class="expand-arrow" onclick="toggleExpand(this)">▼</button>
-                                <div class="expand-content" style="display:none; margin-top:10px;">
-                                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_meta.png') }}"
-                                        alt="Meta SHAP" style="width:100%; max-width:600px;">
-                                </div>
-                                <a href="/detail/{{ log.id }}" class="more-info-btn">More Info</a> 
-                                {% endif %}
-                            </td> -->
+                           
 
                             <td style="max-width:600px; word-break:break-all; line-height:1.6;">
                                 {{ log.reason | safe }}

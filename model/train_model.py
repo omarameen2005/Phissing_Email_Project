@@ -20,29 +20,6 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.naive_bayes import MultinomialNB
 from model.features import TextStatsExtractor
 
-# class TextStatsExtractor(BaseEstimator, TransformerMixin):
-#     def fit(self, X, y=None):
-#         return self
-
-#     def transform(self, X):
-#         data = []
-#         for text in X:
-#             text = str(text)
-#             l = len(text)
-#             safe_len = l if l > 0 else 1
-            
-#             row = [
-#                 l,                                    
-#                 text.count('!'),                        
-#                 text.count('?'),                        
-#                 sum(1 for c in text if c.isupper()),    
-#                 sum(1 for c in text if c.isdigit()),    
-#                 text.count('http'),                   
-#             ]
-#             data.append(row)
-#         return np.array(data)
-
-
 def clean_df(input_df, keep_duplicates=False):
     cleaned = input_df.dropna(subset=['body', 'label'])
     cleaned = cleaned[cleaned['body'].str.strip().str.len() > 10]

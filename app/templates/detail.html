@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // Inline detail-page chart logic (no dependency on script.js)
         console.log('[INLINE DETAIL] Script running on detail page');
 
         const path = window.location.pathname;
@@ -73,7 +72,6 @@
         }
     </script>
     <style>
-        /* Reuse existing styles */
         .plot-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -108,29 +106,7 @@
             <h3 style="margin:0 0 25px 0; font-size:26px; color:#5bc0be;"> Detailed SHAP Explanations </h3>
             <p>Verdict: <strong>{{ log.label }}</strong> • Confidence: {{ "%.1f"|format(log.confidence * 100) if
                 log.confidence else '—' }}% • Reason: {{ log.reason }}</p>
-            <!-- <div class="plot-grid">
-                <div class="plot-card">
-                    <h4>Word Model</h4>
-                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_word.png') }}" alt="Word SHAP">
-                </div>
-                <div class="plot-card">
-                    <h4>Char Model</h4>
-                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_char.png') }}" alt="Char SHAP">
-                </div>
-                <div class="plot-card">
-                    <h4>Count Model</h4>
-                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_count.png') }}" alt="Count SHAP">
-                </div>
-                <div class="plot-card">
-                    <h4>Stats Model</h4>
-                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_stats.png') }}" alt="Stats SHAP">
-                </div>
-                <div class="plot-card">
-                    <h4>Meta Model</h4>
-                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_meta.png') }}" alt="Meta SHAP">
-                </div>
-            </div> -->
-
+            
             <div class="plot-grid">
                 <div class="plot-card">
                     <h4>Meta Model</h4>

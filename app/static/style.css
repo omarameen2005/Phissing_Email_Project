@@ -293,9 +293,6 @@ a:hover {
 
 
 
-/* ... Rest of file unchanged ... */
-
-/* NEW: For SHAP expand */
 .expand-arrow {
     background: none;
     border: none;

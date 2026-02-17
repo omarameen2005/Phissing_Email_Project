@@ -19,28 +19,6 @@ def get_conn() -> sqlite3.Connection:
 
 
 
-# def init_db() -> None:
-
-#     create_table_sql = """
-#     CREATE TABLE IF NOT EXISTS email_logs (
-#         id INTEGER PRIMARY KEY AUTOINCREMENT,
-#         timestamp TEXT NOT NULL,
-#         email_text TEXT,           -- Truncated for performance
-#         label TEXT NOT NULL,
-#         confidence REAL,           -- 0.0 to 1.0 or NULL
-#         reason TEXT,
-#         ip_address TEXT DEFAULT 'unknown',
-#         user_agent TEXT DEFAULT 'unknown'
-#     );
-
-#     CREATE INDEX IF NOT EXISTS idx_timestamp ON email_logs(timestamp DESC);
-#     CREATE INDEX IF NOT EXISTS idx_label ON email_logs(label);
-#     """
-
-#     with get_conn() as conn:
-#         conn.executescript(create_table_sql)
-#         conn.commit()
-
 def init_db() -> None:
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS email_logs (
@@ -62,7 +40,6 @@ def init_db() -> None:
     with get_conn() as conn:
         conn.executescript(create_table_sql)
         
-        # Safely add shap_data column (won't break if it already exists)
         try:
             conn.execute("ALTER TABLE email_logs ADD COLUMN shap_data TEXT DEFAULT NULL")
             print("✓ shap_data column added successfully!")
@@ -164,52 +141,34 @@ def clear_logs() -> None:
 
 
 
-# # Add at the bottom of logger.py
-# def backfill_shap():
-#     from engine.processor import get_shap_data  # Adjust import if needed
+
+# def backfill_all_shap():
 #     import json
+#     from model.shap_explain import get_shap_data
 #     conn = get_conn()
-#     logs = conn.execute("SELECT id, email_text, reason FROM email_logs WHERE shap_data IS NULL AND reason LIKE '%ML Model%'").fetchall()
-#     for log in logs:
-#         try:
-#             if log['email_text']:  # Use stored (truncated) text; if too short, skip or warn
-#                 shap_json = get_shap_data(log['email_text'])
-#                 conn.execute("UPDATE email_logs SET shap_data = ? WHERE id = ?", (json.dumps(shap_json), log['id']))
-#             else:
-#                 print(f"Skipped {log['id']}: No email text")
-#         except Exception as e:
-#             print(f"Backfill failed for {log['id']}: {e}")
-#     conn.commit()
-#     print("Backfill complete!")
-
-
-def backfill_all_shap():
-    import json
-    from model.shap_explain import get_shap_data
-    conn = get_conn()
     
-    logs = conn.execute("SELECT id, email_text FROM email_logs WHERE reason LIKE '%ML Model%'").fetchall()
+#     logs = conn.execute("SELECT id, email_text FROM email_logs WHERE reason LIKE '%ML Model%'").fetchall()
 
-    print(f"Found {len(logs)} old ML logs. Backfilling now...")
+#     print(f"Found {len(logs)} old ML logs. Backfilling now...")
 
-    success = 0
-    for log in logs:
-        if not log['email_text'] or len(log['email_text']) < 50:
-            continue
-        try:
-            shap_json = get_shap_data(log['email_text'])
-            conn.execute(
-                "UPDATE email_logs SET shap_data = ? WHERE id = ?",
-                (json.dumps(shap_json), log['id'])
-            )
-            success += 1
-            if success % 10 == 0:
-                print(f"✓ {success} logs updated...")
-        except:
-            pass  # silently skip the few that still fail
+#     success = 0
+#     for log in logs:
+#         if not log['email_text'] or len(log['email_text']) < 50:
+#             continue
+#         try:
+#             shap_json = get_shap_data(log['email_text'])
+#             conn.execute(
+#                 "UPDATE email_logs SET shap_data = ? WHERE id = ?",
+#                 (json.dumps(shap_json), log['id'])
+#             )
+#             success += 1
+#             if success % 10 == 0:
+#                 print(f"✓ {success} logs updated...")
+#         except:
+#             pass 
 
-    conn.commit()
-    print(f"\nBackfill finished! {success} old logs now have full 5-model graphs.")
+#     conn.commit()
+#     print(f"\nBackfill finished! {success} old logs now have full 5-model graphs.")
 
 
 init_db()  

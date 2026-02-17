@@ -8,9 +8,6 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from model.features import TextStatsExtractor
 
-# MODEL_DIR = Path("model")
-# MODEL_PATH = MODEL_DIR / "phishing_model_full.pkl"
-# FALLBACK_MODEL_PATH = MODEL_DIR / "phishing_model.pkl" 
 
 MODEL_DIR = Path(".") 
 MODEL_PATH = Path("model/phishing_model_full.pkl")

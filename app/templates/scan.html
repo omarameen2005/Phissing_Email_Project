@@ -146,7 +146,7 @@
         confidenceFill.style.width = "0%";
 
         try {
-            const res = await fetch("/scan_api", {  // FIXED: Now uses correct API
+            const res = await fetch("/scan_api", {  
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email_text: text })
@@ -156,7 +156,6 @@
 
             if (!res.ok) throw new Error("Scan failed");
 
-            // Show result
             verdictText.innerHTML = `<strong style="font-size:42px;">${data.label}</strong>`;
 
             const confPercent = data.confidence ? (data.confidence * 100).toFixed(1) : 0;
@@ -172,7 +171,6 @@
                 quarantineNotice.innerHTML = "";
             }
 
-            // Apply correct styling
             const type = data.label === "Phishing" ? "phishing" : 
                         data.label === "Suspicious" ? "warning" : "safe";
             resultBox.className = `result ${type}`;

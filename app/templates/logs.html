@@ -87,35 +87,7 @@
                             <th>Reason / Indicators</th>
                         </tr>
                     </thead>
-                    <!-- <tbody>
-                        {% for log in logs %}
-                        <tr class="{{ 'phishing' if log.label == 'Phishing' else 'suspicious' if log.label == 'Suspicious' else 'safe' }}">
-                            <td style="font-family:monospace; color:#888;">{{ log.id }}</td>
-                            <td style="font-size:13px;">{{ log.timestamp }}</td>
-                            <td>
-                                <strong style="font-size:15px;">
-                                    {{ log.label }}
-                                </strong>
-                            </td>
-                            <td>
-                                {% if log.confidence %}
-                                    <strong style="color:#5bc0be;">
-                                        {{ "%.1f"|format(log.confidence * 100) }}%
-                                    </strong>
-                                {% else %}
-                                    <span style="color:#666;">—</span>
-                                {% endif %}
-                            </td>
-                            <td style="max-width:600px; word-break:break-word; font-size:13.5px; line-height:1.5;">
-                                {{ log.reason }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody> -->
-
-
-
-                    <!-- ... Rest of file unchanged ... -->
+                   
                     <tbody>
                         {% for log in logs %}
                         <tr
@@ -125,17 +97,7 @@
                             <td> <strong style="font-size:15px;"> {{ log.label }} </strong> </td>
                             <td> {% if log.confidence %} <strong style="color:#5bc0be;"> {{ "%.1f"|format(log.confidence
                                     * 100) }}% </strong> {% else %} <span style="color:#666;">—</span> {% endif %} </td>
-                            <!-- <td style="max-width:600px; word-break:break-word; font-size:13.5px; line-height:1.5;">
-                                {{ log.reason }} 
-                                {% if 'ML Model' in log.reason %} 
-                                <button class="expand-arrow" onclick="toggleExpand(this)">▼</button>
-                                <div class="expand-content" style="display:none; margin-top:10px;">
-                                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_meta.png') }}"
-                                        alt="Meta SHAP" style="width:100%; max-width:600px;">
-                                </div>
-                                <a href="/detail/{{ log.id }}" class="more-info-btn">More Info</a> 
-                                {% endif %}
-                            </td> -->
+                            
 
                             <td style="max-width:600px; word-break:break-all; line-height:1.6;">
                                 {{ log.reason | safe }}
@@ -154,7 +116,6 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-                    <!-- ... Rest unchanged ... -->
 
 
 

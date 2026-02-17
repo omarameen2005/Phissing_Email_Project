@@ -1,14 +1,9 @@
 const stats = window.dashboardStats || { total: 0, Phishing: 0, Suspicious: 0, Safe: 0 };
 const logs  = window.dashboardLogs  || [];
 
-// Now init charts automatically when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
-    // Initialize charts using the injected data
     initCharts(stats, logs);
 
-    // ===================================================================
-    // 1. Real-time Email Scanning (Dashboard + Scan Page)
-    // ===================================================================
     const checkBtn = document.getElementById("checkBtn");
     const emailInput = document.getElementById("emailInput");
     const resultBox = document.getElementById("resultBox");
@@ -57,7 +52,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         data.label === "Suspicious" ? "warning" : "safe"
                     );
 
-                    // Auto-refresh dashboard after scan
                     if (window.location.pathname === "/") {
                         setTimeout(() => location.reload(), 2500);
                     }
@@ -80,11 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-// ===================================================================
-// 3. Chart Initialization Function
-// ===================================================================
 function initCharts(stats, logs) {
-    // --- Pie/Doughnut Chart: Threat Distribution ---
     const pieCtx = document.getElementById("pieChart");
     if (pieCtx) {
         new Chart(pieCtx, {
@@ -127,7 +117,6 @@ function initCharts(stats, logs) {
         });
     }
 
-    // --- Line Chart: Phishing Detections Over Time (Last 12 entries) ---
     const lineCtx = document.getElementById("lineChart");
     if (lineCtx && logs.length > 0) {
         const recentLogs = logs.slice(0, 12).reverse();
@@ -193,9 +182,6 @@ function initCharts(stats, logs) {
 
 
 
-// ... Rest of file unchanged ...
-
-// NEW: Toggle for SHAP meta plot
 function toggleExpand(button) {
     const content = button.nextElementSibling;
     if (content.style.display === "none" || content.style.display === "") {
@@ -216,11 +202,9 @@ async function showMetaChart(logId, button) {
         return;
     }
 
-    // Fetch data
     const res = await fetch(`/shap/${logId}`);
     const data = await res.json();
 
-    // Render meta chart
     const ctx = document.getElementById(`metaChart${logId}`).getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -276,7 +260,6 @@ window.addEventListener('load', async () => {
         const data = await response.json();
         console.log('[DETAIL DEBUG] Raw SHAP data:', data);
 
-        // Check each section exists
         console.log('[DETAIL DEBUG] meta exists?', !!data.meta);
         console.log('[DETAIL DEBUG] word exists?', !!data.word);
         console.log('[DETAIL DEBUG] char exists?', !!data.char);
@@ -333,7 +316,6 @@ window.addEventListener('load', async () => {
 
 
 
-// Force-run detail charts as soon as possible
 function tryInitDetailCharts() {
     if (!window.location.pathname.includes('/detail/')) return;
 
@@ -381,7 +363,6 @@ function tryInitDetailCharts() {
         .catch(e => console.error('[DETAIL FORCE] Error:', e));
 }
 
-// Try immediately, after small delay, and on load
 setTimeout(tryInitDetailCharts, 100);
 setTimeout(tryInitDetailCharts, 500);
 window.addEventListener('load', tryInitDetailCharts);
