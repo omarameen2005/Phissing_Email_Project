@@ -1,28 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Full Scan History • Phishing Shield</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
     <style>
-        .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; }
-        h3 { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
-        body { font-family: 'Roboto Mono', monospace; }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+        }
+
+        h3 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+        }
+
         .status-dot {
             display: inline-block;
-            width: 10px; height: 10px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: #27ae60;
             animation: pulse 2s infinite;
             margin-right: 10px;
         }
-        @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:0.5} }
-        .table-container { overflow-x: auto; border-radius: 12px; }
-        table { min-width: 900px; }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.5
+            }
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+
+        table {
+            min-width: 900px;
+        }
     </style>
 </head>
+
 <body>
     <nav>
         <div class="logo">
@@ -53,7 +87,7 @@
                             <th>Reason / Indicators</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <!-- <tbody>
                         {% for log in logs %}
                         <tr class="{{ 'phishing' if log.label == 'Phishing' else 'suspicious' if log.label == 'Suspicious' else 'safe' }}">
                             <td style="font-family:monospace; color:#888;">{{ log.id }}</td>
@@ -77,20 +111,68 @@
                             </td>
                         </tr>
                         {% endfor %}
+                    </tbody> -->
+
+
+
+                    <!-- ... Rest of file unchanged ... -->
+                    <tbody>
+                        {% for log in logs %}
+                        <tr
+                            class="{{ 'phishing' if log.label == 'Phishing' else 'suspicious' if log.label == 'Suspicious' else 'safe' }}">
+                            <td style="font-family:monospace; color:#888;">{{ log.id }}</td>
+                            <td style="font-size:13px;">{{ log.timestamp }}</td>
+                            <td> <strong style="font-size:15px;"> {{ log.label }} </strong> </td>
+                            <td> {% if log.confidence %} <strong style="color:#5bc0be;"> {{ "%.1f"|format(log.confidence
+                                    * 100) }}% </strong> {% else %} <span style="color:#666;">—</span> {% endif %} </td>
+                            <!-- <td style="max-width:600px; word-break:break-word; font-size:13.5px; line-height:1.5;">
+                                {{ log.reason }} 
+                                {% if 'ML Model' in log.reason %} 
+                                <button class="expand-arrow" onclick="toggleExpand(this)">▼</button>
+                                <div class="expand-content" style="display:none; margin-top:10px;">
+                                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_meta.png') }}"
+                                        alt="Meta SHAP" style="width:100%; max-width:600px;">
+                                </div>
+                                <a href="/detail/{{ log.id }}" class="more-info-btn">More Info</a> 
+                                {% endif %}
+                            </td> -->
+
+                            <td style="max-width:600px; word-break:break-all; line-height:1.6;">
+                                {{ log.reason | safe }}
+
+                                {% if log.shap_data %}
+                                <button class="expand-arrow" onclick="showMetaChart('{{ log.id }}', this)">▼</button>
+                                <div class="expand-content"
+                                    style="display:none; margin-top:12px; padding:10px; background:#162033; border-radius:8px;">
+                                    <canvas id="metaChart{{ log.id }}" width="420" height="160"></canvas>
+                                </div>
+                                <a href="/detail/{{ log.id }}" class="more-info-btn">More Info →</a>
+                                {% endif %}
+                            </td>
+
+
+                        </tr>
+                        {% endfor %}
                     </tbody>
+                    <!-- ... Rest unchanged ... -->
+
+
+
                 </table>
             </div>
 
-            <div style="margin-top:25px; padding:20px; background:#111727; border-radius:10px; text-align:center; color:#aaa;">
-                Showing all {{ logs|length }} recorded scans • 
-                <strong>{{ stats.Phishing }}</strong> phishing blocked • 
+            <div
+                style="margin-top:25px; padding:20px; background:#111727; border-radius:10px; text-align:center; color:#aaa;">
+                Showing all {{ logs|length }} recorded scans •
+                <strong>{{ stats.Phishing }}</strong> phishing blocked •
                 <strong>{{ stats.Suspicious|default(0) }}</strong> flagged suspicious
             </div>
 
             {% else %}
             <div style="text-align:center; padding:80px 20px; color:#666;">
                 <h4 style="color:#5bc0be; margin-bottom:15px;">No scan history yet</h4>
-                <p>Your detection engine is armed and ready.<br>Start scanning emails from the dashboard to populate logs.</p>
+                <p>Your detection engine is armed and ready.<br>Start scanning emails from the dashboard to populate
+                    logs.</p>
             </div>
             {% endif %}
 
@@ -99,7 +181,7 @@
                     ← Back to Dashboard
                 </a>
                 <span style="color:#444; margin:0 20px;">•</span>
-                
+
             </div>
         </div>
 
@@ -108,4 +190,5 @@
         </div>
     </div>
 </body>
+
 </html>

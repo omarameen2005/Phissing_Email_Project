@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explanation Details • Phishing Shield</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Inline detail-page chart logic (no dependency on script.js)
+        console.log('[INLINE DETAIL] Script running on detail page');
+
+        const path = window.location.pathname;
+        if (path.includes('/detail/')) {
+            const logId = path.split('/').pop();
+            console.log('[INLINE DETAIL] Log ID:', logId);
+
+            fetch(`/shap/${logId}`)
+                .then(r => {
+                    console.log('[INLINE DETAIL] Fetch status:', r.status);
+                    if (!r.ok) throw new Error('Fetch failed');
+                    return r.json();
+                })
+                .then(data => {
+                    console.log('[INLINE DETAIL] Data received:', data);
+
+                    function draw(canvasId, key, title) {
+                        const canvas = document.getElementById(canvasId);
+                        if (!canvas) {
+                            console.warn('[INLINE DETAIL] Canvas missing:', canvasId);
+                            return;
+                        }
+                        console.log('[INLINE DETAIL] Drawing:', title);
+
+                        new Chart(canvas.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: (data[key]?.labels || ['No features']),
+                                datasets: [{
+                                    label: 'SHAP Contribution',
+                                    data: (data[key]?.values || [0]),
+                                    backgroundColor: '#5bc0be',
+                                    borderColor: '#0b132b',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: { title: { display: true, text: title, color: '#e6e6e6' } },
+                                scales: { y: { beginAtZero: false } }
+                            }
+                        });
+                    }
+
+                    draw('metaChart', 'meta', 'Meta Model');
+                    draw('wordChart', 'word', 'Word Model');
+                    draw('charChart', 'char', 'Char Model');
+                    draw('countChart', 'count', 'Count Model');
+                    draw('statsChart', 'stats', 'Stats Model');
+                })
+                .catch(err => {
+                    console.error('[INLINE DETAIL] Error:', err);
+                    document.querySelector('.plot-grid')?.insertAdjacentHTML('beforeend',
+                        `<p style="color:#e74c3c; text-align:center; margin:20px 0;">
+            Failed to load charts: ${err.message}
+          </p>`);
+                });
+        }
+    </script>
+    <style>
+        /* Reuse existing styles */
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .plot-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .plot-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <span class="status-dot"></span> Phishing Shield
+        </div>
+        <div style="color:#5bc0be; font-size:14px;"> Detailed Explanation • Log #{{ log.id }}</div>
+    </nav>
+    <div class="container">
+        <div class="card" style="margin-top: 30px;">
+            <h3 style="margin:0 0 25px 0; font-size:26px; color:#5bc0be;"> Detailed SHAP Explanations </h3>
+            <p>Verdict: <strong>{{ log.label }}</strong> • Confidence: {{ "%.1f"|format(log.confidence * 100) if
+                log.confidence else '—' }}% • Reason: {{ log.reason }}</p>
+            <!-- <div class="plot-grid">
+                <div class="plot-card">
+                    <h4>Word Model</h4>
+                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_word.png') }}" alt="Word SHAP">
+                </div>
+                <div class="plot-card">
+                    <h4>Char Model</h4>
+                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_char.png') }}" alt="Char SHAP">
+                </div>
+                <div class="plot-card">
+                    <h4>Count Model</h4>
+                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_count.png') }}" alt="Count SHAP">
+                </div>
+                <div class="plot-card">
+                    <h4>Stats Model</h4>
+                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_stats.png') }}" alt="Stats SHAP">
+                </div>
+                <div class="plot-card">
+                    <h4>Meta Model</h4>
+                    <img src="{{ url_for('static', filename='plots/' + log.id|string + '_meta.png') }}" alt="Meta SHAP">
+                </div>
+            </div> -->
+
+            <div class="plot-grid">
+                <div class="plot-card">
+                    <h4>Meta Model</h4>
+                    <canvas id="metaChart" width="500" height="250"></canvas>
+                </div>
+                <div class="plot-card">
+                    <h4>Word Model</h4>
+                    <canvas id="wordChart" width="500" height="250"></canvas>
+                </div>
+                <div class="plot-card">
+                    <h4>Char Model</h4>
+                    <canvas id="charChart" width="500" height="250"></canvas>
+                </div>
+                <div class="plot-card">
+                    <h4>Count Model</h4>
+                    <canvas id="countChart" width="500" height="250"></canvas>
+                </div>
+                <div class="plot-card">
+                    <h4>Stats Model</h4>
+                    <canvas id="statsChart" width="500" height="250"></canvas>
+                </div>
+            </div>
+            <div style="text-align:center; margin:40px 0;">
+                <a href="/logs" style="color:#5bc0be; font-size:18px; font-weight:600; text-decoration:none;"> ← Back to
+                    Logs </a>
+            </div>
+        </div>
+        <div style="text-align:center; margin:60px 0 30px; color:#444; font-size:13px;"> Phishing Shield •
+            Enterprise-Grade Detection • Hybrid AI Engine Active </div>
+    </div>
+</body>
+
+</html>
